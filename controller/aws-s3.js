@@ -28,7 +28,7 @@ const upload = multer({
       cb(null, Date.now().toString() + "-" + file.originalname);
 
       // to save image in the images folder on the droplet
-      // cb(null, "images/" + Date.now().toString());
+      cb(null, "images/" + Date.now().toString());
     },
   }),
 });
