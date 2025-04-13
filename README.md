@@ -113,53 +113,64 @@ I actually used two methods to uploade file/image to AWS S3
 
   - 🎯 Steps to Set Up CloudFront for Private Access
 
-    - Create a CloudFront Distribution
-      Go to AWS Console → CloudFront → Create Distribution
-      Select Web as delivery method
-      Set your Origin Domain to your S3 bucket
-      Under Origin access, choose Origin access control (OAC) and enable signing
-      Leave caching defaults as-is (you can optimize later)
-      Disable public access on the S3 bucket
+    - Create a CloudFront Distribution:
 
-    - Generate a CloudFront Key Pair
-      Go to AWS Console > CloudFront > Key Pairs
-      Click Create Key Pair
-      Download and store the Private Key file securely on your machine
-      Copy the Key Pair ID to use in your environment variables
-      Project Features
+      - Go to AWS Console → CloudFront → Create Distribution
+
+      - Select Web as delivery method
+
+      - Set your Origin Domain to your S3 bucket
+
+      - Under Origin access, choose Origin access control (OAC) and enable signing
+
+      - Leave caching defaults as-is (you can optimize later)
+
+      - Disable public access on the S3 bucket
+
+    - Generate a CloudFront Key Pair:
+
+      - Go to AWS Console > CloudFront > Key Pairs
+
+      - Click Create Key Pair
+
+      - Download and store the Private Key file securely on your machine
+
+      - Copy the Key Pair ID to use in your environment variables
 
     - Environment Variables
-      CLOUD_FRONT_KEY_ID=YourKeyPairID
-      CLOUDFRONT_PRIVATE_KEY_PATH=/full/path/to/private-key.pem
-      CLOUD_FRONT_DISTRIBUTION_DOMIAN_NAME=https://your-cloudfront-distribution.cloudfront.net
+
+      - CLOUD_FRONT_KEY_ID=YourKeyPairID
+      - CLOUDFRONT_PRIVATE_KEY_PATH=/full/path/to/private-key.pem
+      - CLOUD_FRONT_DISTRIBUTION_DOMIAN_NAME=https://your-cloudfront-distribution.cloudfront.net
 
     - Get Signed URL Using CloudFront
 
-      const crypto = require("crypto");
-      const fs = require("fs");
-      const path = require("path");
+          const crypto = require("crypto");
+          const fs = require("fs");
+          const path = require("path");
 
-      const privateKeyPath = path.resolve(process.env.CLOUDFRONT_PRIVATE_KEY_PATH);
-      const privateKey = fs.readFileSync(privateKeyPath, "utf8");
-      const cloudFrontKeyPairId = process.env.CLOUD_FRONT_KEY_ID;
-      const cloudFrontDomain = process.env.CLOUD_FRONT_DISTRIBUTION_DOMIAN_NAME;
+          const privateKeyPath = path.resolve(process.env.CLOUDFRONT_PRIVATE_KEY_PATH);
+          const privateKey = fs.readFileSync(privateKeyPath, "utf8");
+          const cloudFrontKeyPairId = process.env.CLOUD_FRONT_KEY_ID;
+          const cloudFrontDomain = process.env.CLOUD_FRONT_DISTRIBUTION_DOMIAN_NAME;
 
-      const expires = Math.floor(Date.now() / 1000) + 3600 _ 24 _ 7; // 7 days
-      const policy = JSON.stringify({
-      Statement: [
-      {
-      Resource: `${cloudFrontDomain}/${req.query.image_name}`,
-      Condition: { DateLessThan: { "AWS:EpochTime": expires } },
-      },
-      ],
-      });
+          const expires = Math.floor(Date.now() / 1000) + 3600 _ 24 _ 7; // 7 days
+          const policy = JSON.stringify({
+            Statement: [
+              {
+                Resource: `${cloudFrontDomain}/${req.query.image_name}`,
+                Condition: { DateLessThan: { "AWS:EpochTime": expires } },
+              },
+            ],
+          });
 
-    const policyBase64 = Buffer.from(policy).toString("base64");
-    const signature = crypto
-    .sign("sha256", Buffer.from(policyBase64), privateKey)
-    .toString("base64");
+          const policyBase64 = Buffer.from(policy).toString("base64");
 
-    const signedUrl = `${cloudFrontDomain}/${req.query.image_name}?Expires=${expires}&Signature=${signature}&Key-Pair-Id=${cloudFrontKeyPairId}`;
+          const signature = crypto
+            .sign("sha256", Buffer.from(policyBase64), privateKey)
+            .toString("base64");
+
+          const signedUrl = `${cloudFrontDomain}/${req.query.image_name}?Expires=${expires}&Signature=${signature}&Key-Pair-Id=${cloudFrontKeyPairId}`;
 
 - In this AWS S3 practice project, you can perform the following actions:
 
