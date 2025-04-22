@@ -43,9 +43,9 @@ jobs:
           rm -rf aws-s3-practice &&
           git clone https://github.com/jamshaid302/aws-s3-practice.git &&
           cd aws-s3-practice &&
-          npm install --omit=dev &&  # Skip dev dependencies (like nodemon)
-          pm2 delete my-app || true &&  # Ignore if app doesn't exist
-          pm2 start index.js --name 'my-app' &&  # Directly start index.js
+          npm install --omit=dev &&
+          pm2 delete my-app || true &&
+          pm2 start index.js --name 'my-app' &&
           pm2 save &&
-          pm2 startup
-        "
+          sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u ${{ secrets.AWS_EC2_USERNAME }} --hp /home/${{ secrets.AWS_EC2_USERNAME }}
+      "
