@@ -1,0 +1,51 @@
+name: Node.js CI/CD to AWS EC2
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18'
+    
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Run tests
+      run: npm test
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install SSH key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.AWS_EC2_SSH_KEY }}
+        known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
+
+    - name: Deploy to EC2
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.AWS_EC2_USERNAME }}@${{ secrets.AWS_EC2_IP }} "
+          cd ~ &&
+          rm -rf aws-s3-practice &&
+          git clone https://github.com/jamshaid302/aws-s3-practice.git &&
+          cd aws-s3-practice &&
+          npm install --omit=dev &&  # Skip dev dependencies (like nodemon)
+          pm2 delete my-app || true &&  # Ignore if app doesn't exist
+          pm2 start index.js --name 'my-app' &&  # Directly start index.js
+          pm2 save &&
+          pm2 startup
+        "
