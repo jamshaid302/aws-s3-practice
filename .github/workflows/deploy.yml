@@ -43,6 +43,15 @@ jobs:
           rm -rf aws-s3-practice &&
           git clone https://github.com/jamshaid302/aws-s3-practice.git &&
           cd aws-s3-practice &&
+          echo 'PORT=${{ secrets.PORT }}' >> .env &&
+          echo 'DATABASE_URL=${{ secrets.DATABASE_URL }}' >> .env &&
+          echo 'AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}' >> .env &&
+          echo 'AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}' >> .env &&
+          echo 'AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}' >> .env &&
+          echo 'AWS_REGION=${{ secrets.AWS_REGION }}' >> .env &&
+          echo 'CLOUD_FRONT_DISTRIBUTION_DOMIAN_NAME=${{ secrets.CLOUD_FRONT_DISTRIBUTION_DOMIAN_NAME }}' >> .env &&
+          echo 'CLOUD_FRONT_KEY_ID=${{ secrets.CLOUD_FRONT_KEY_ID }}' >> .env &&
+          # Install and start app
           npm install --omit=dev &&
           pm2 delete my-app || true &&
           pm2 start index.js --name 'my-app' &&
