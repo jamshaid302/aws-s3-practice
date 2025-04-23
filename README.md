@@ -142,6 +142,30 @@ I actually used two methods to uploade file/image to AWS S3
       - CLOUD_FRONT_KEY_ID=YourKeyPairID
       - CLOUDFRONT_PRIVATE_KEY_PATH=/full/path/to/private-key.pem
       - CLOUD_FRONT_DISTRIBUTION_DOMIAN_NAME=https://your-cloudfront-distribution.cloudfront.net
+     
+    - Update S3 buckcet policy
+      - Go to your S3 Bucket → Permissions → Bucket Policy.
+      - Add this policy (replace your-cloudfront-OAC-id with your OAC principal and your-bucket-name)
+
+            {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Sid": "AllowCloudFrontServicePrincipalReadOnly",
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Service": "cloudfront.amazonaws.com"
+                  },
+                  "Action": "s3:GetObject",
+                  "Resource": "arn:aws:s3:::your-bucket-name/*",
+                  "Condition": {
+                    "StringEquals": {
+                      "AWS:SourceArn": "arn:aws:cloudfront::YOUR_ACCOUNT_ID:distribution/YOUR_DISTRIBUTION_ID"
+                    }
+                  }
+                }
+              ]
+            }
 
     - Get Signed URL Using CloudFront
 
