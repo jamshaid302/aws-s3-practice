@@ -57,7 +57,7 @@ jobs:
           chmod 600 cloudfront-key.pem
 
           # 2. Create/update .env with the key path
-          echo 'CLOUDFRONT_PRIVATE_KEY_PATH=~/aws-s3-practice/cloudfront-key.pem' >> .env &&
+          echo 'CLOUDFRONT_PRIVATE_KEY_PATH=/home/ubuntu/aws-s3-practice/cloudfront-key.pem' >> .env &&
           
           # Install and start app
           npm install --omit=dev &&
